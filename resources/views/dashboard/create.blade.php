@@ -1,4 +1,5 @@
 <x-header></x-header>
+<script src="@vite('resources/js/add-quiz.js')"></script>
 <body class="bg-gray-100">
 <div class="flex min-h-screen">
     <!-- Sidebar -->
@@ -33,6 +34,7 @@
 
                     <!-- Main Form -->
                     <form class="space-y-4" id="quizForm">
+                        @csrf
                         <!-- Quiz Details Section -->
                         <div class="bg-white p-6 rounded-lg shadow-md">
                             <h3 class="text-xl font-semibold text-gray-800 mb-4">Quiz Details</h3>
