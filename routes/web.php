@@ -11,14 +11,16 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
-Route::get('/quizzes', [DashboardController::class, 'quizzes'])->name('quizzes');
+Route::get('/quizzes', [QuizController::class, 'index'])->name('quizzes');
+Route::get('/quizzes/{quiz}', [QuizController::class, 'edit'])->name('quiz-edit');
 Route::get('/create-quiz', [QuizController::class, 'create'])->name('create-quiz');
+Route::get('/quizzes/{quiz}/delete', [QuizController::class, 'destroy'])->name('delete-quiz');
 Route::get('/take-quiz', function () {
     return view('quiz.take-quiz');
 })->middleware(['auth', 'verified'])->name('take-quiz');
 
 Route::post('/create-quiz', [QuizController::class, 'store'])->name('store-quiz');
-
+Route::post('/quizzes/{quiz}/update', [QuizController::class, 'update'])->name('quiz-update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

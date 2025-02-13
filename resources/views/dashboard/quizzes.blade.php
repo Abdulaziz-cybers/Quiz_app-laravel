@@ -27,9 +27,9 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">My Quizzes</h2>
                 <div class="flex space-x-4">
-                    <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                    <a href="{{route('create-quiz')}}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
                         Create New Quiz
-                    </button>
+                    </a>
                     <div class="flex border rounded-lg">
                         <button class="px-3 py-2 bg-white border-r">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -90,13 +90,13 @@
                             <span class="text-sm text-gray-500">75% Completion Rate</span>
                         </div>
                         <div class="flex justify-between">
-                            <button class="text-indigo-600 hover:text-indigo-800">Edit</button>
+                            <a href="{{ route('quiz-edit',['quiz'=>$quiz->id]) }}" class="text-indigo-600 hover:text-indigo-800">Edit</a>
                             <button class="text-green-600 hover:text-green-800">View Results</button>
                             <button
                                 class="text-green-600 hover:text-green-100 hover:bg-blue-500"
                                 onclick="share('{{$quiz->slug}}')"
                                 >Share</button>
-                            <button class="text-red-600 hover:text-red-800">Delete</button>
+                            <a href="{{ route('delete-quiz',['quiz' => $quiz->id])}}" class="text-red-600 hover:text-red-800">Delete</a>
                         </div>
                     </div>
                 @endforeach
@@ -104,6 +104,16 @@
         </main>
     </div>
 </div>
-
+<script>
+    async function share(slug) {
+        try{
+            slug = '{{ url('/take-quiz/')}}' + slug
+            await navigator.clipboard.writeText(slug)
+            alert('Content copied to clipboard')
+        }catch (err){
+            console.error('Failed to copy' + err)
+        }
+    }
+</script>
 </body>
 </html>
