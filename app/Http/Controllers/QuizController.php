@@ -15,7 +15,7 @@ class QuizController extends Controller
     public function index()
     {
         return view('dashboard.quizzes',[
-            'quizzes' => Quiz::withCount('questions')->get()
+            'quizzes' => Quiz::withCount('questions')->orderBy('id','desc')->get()
         ]);
     }
 
@@ -110,9 +110,9 @@ class QuizController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Quiz $id)
+    public function destroy(Quiz $quiz)
     {
-        Quiz::destroy($id);
+        Quiz::destroy($quiz->id);
         return to_route('quizzes');
     }
 }
