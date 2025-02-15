@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Answer;
 use App\Models\Quiz;
+use App\Models\Result;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -15,7 +17,10 @@ class QuizController extends Controller
     public function index()
     {
         return view('dashboard.quizzes',[
-            'quizzes' => Quiz::withCount('questions')->orderBy('id','desc')->get()
+            'quizzes' => Quiz::withCount('questions')
+                ->where('user_id', auth()->id())
+                ->orderBy('id','desc')
+                ->paginate(9)
         ]);
     }
 
@@ -114,5 +119,36 @@ class QuizController extends Controller
     {
         Quiz::destroy($quiz->id);
         return to_route('quizzes');
+    }
+    public function startQuiz(string $slug){
+        $quiz = Quiz::query()->where('slug', $slug)->with('questions.options')->first();
+        return view('quiz.take-quiz',[
+            'quiz' => $quiz,
+        ]);
+    }
+    public function takeQuiz(string $slug, Request $request){
+        $validator = $request->validate([
+            'answer' => 'required|string',
+        ]);
+        $user_id = auth()->id();
+        $quiz = Quiz::where('slug', $slug)->first();
+
+        $result = Result::where('quiz_id', $quiz->id)
+            ->where('user_id', $user_id)->first();
+
+        if (!$result) {
+            $result = Result::create([
+                'user_id' => $user_id,
+                'quiz_id' => $quiz->id,
+                'started_at' => now(),
+            ]);
+
+            Answer::create([
+                'result_id' => $result->id,
+                'option_id' => $validator['answer'],
+            ]);
+
+            $answeredOptionIds = Answer::where('result_id', $result->id);
+        }
     }
 }

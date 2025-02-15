@@ -21,15 +21,38 @@
 
 <!-- Main Content -->
 <main class="flex-grow container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6" id="questionContainer">
+    <div id="start-card" class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4" id="title">Quiz Title</h2>
+            <p class="text-xl text-gray-700 mb-6" id="description">Lorem ipsum dolor sit amet, consectetur
+                adipisicing elit.
+                Accusamus delectus dolorum eligendi esse excepturi in quam qui veritatis voluptatibus?
+                Dolore.</p>
+
+            <div class="flex justify-center space-x-12 mb-8">
+                <div class="text-center">
+                </div>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-blue-600" id="time-taken">5:00</p>
+                    <p class="text-gray-600">Time Limit</p>
+                </div>
+            </div>
+
+            <button id="start-btn"
+                    class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Start Quiz
+            </button>
+        </div>
+    </div>
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6 hidden" id="questionContainer">
         <!-- Quiz Header -->
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">JavaScript Fundamentals Quiz</h1>
-                <p class="text-gray-600 mt-2">Test your knowledge of JavaScript basics</p>
+                <h1 class="text-2xl font-bold text-gray-800">{{ $quiz->title }}</h1>
+                <p class="text-gray-600 mt-2">{{ $quiz->description }}</p>
             </div>
             <div class="text-right">
-                <div class="text-xl font-bold text-blue-600" id="timer">20:00</div>
+                <div class="text-xl font-bold text-blue-600" id="timer">{{ $quiz->time_limit}}</div>
                 <div class="text-sm text-gray-500">Time Remaining</div>
             </div>
         </div>
@@ -53,24 +76,12 @@
 
             <!-- Options -->
             <div class="space-y-3" id="options">
-                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="a">
-                    <span class="ml-3">undefined</span>
-                </label>
-                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="b">
-                    <span class="ml-3">object</span>
-                </label>
-                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="c">
-                    <span class="ml-3">string</span>
-                </label>
-                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="d">
-                    <span class="ml-3">null</span>
-                </label>
+
+
+
             </div>
         </div>
+
 
         <!-- Navigation Buttons -->
         <div class="flex justify-between items-center">
@@ -125,6 +136,13 @@
 
 <!-- Quiz JavaScript -->
 <script>
+    let startBtn = document.getElementById('start-btn');
+    startBtn.onclick = () => {
+        document.getElementById('start-card').classList.add('hidden');
+        document.getElementById('questionContainer').classList.remove('hidden');
+        let currentQuestion = getQuestion(currentQuestionIndex)
+        displayQuestion(currentQuestion)
+    }
     // Timer functionality
     function startTimer(duration, display) {
         let timer = duration;
@@ -141,87 +159,35 @@
 
     // Initialize quiz
     let options = document.getElementById('options'),
-        questions = [
-            {
-                'id':1,
-                'question': 'What is the output of console.log(typeof undefined)?',
-                'options': [
-                    {
-                        'id':1,
-                        'option_text':'undefined'
-                    },
-                    {
-                        'id':2,
-                        'option_text':'object'
-                    },
-                    {
-                        'id':3,
-                        'option_text':'string'
-                    },
-                    {
-                        'id':4,
-                        'option_text':'null'
-                    }
-                ],
-            },
-            {
-                'id':2,
-                'question': 'What is the output of console.log(typeof null)?',
-                'options': [
-                    {
-                        'id':1,
-                        'option_text':'undefined'
-                    },
-                    {
-                        'id':2,
-                        'option_text':'object'
-                    },
-                    {
-                        'id':3,
-                        'option_text':'string'
-                    },
-                    {
-                        'id':4,
-                        'option_text':'null'
-                    }
-                ],
-            },
-            {
-                'id':3,
-                'question': 'What is the output of console.log(typeof {})?',
-                'options': [
-                    {
-                        'id':1,
-                        'option_text':'undefined'
-                    },
-                    {
-                        'id':2,
-                        'option_text':'object'
-                    },
-                    {
-                        'id':3,
-                        'option_text':'string'
-                    },
-                    {
-                        'id':4,
-                        'option_text':'null'
-                    }
-                ],
-            }
-        ],
+        questions = JSON.parse('<?php echo $quiz->toJson() ?>').questions,
         currentQuestionIndex = 0;
 
-    function takeQuiz(index=0) {
+    function getQuestion(index=0) {
         return questions[index];
     }
+
+    function  displayQuestion(question){
+        let questionElement = document.getElementById('question'),
+            optionsElement = document.getElementById('options');
+        questionElement.innerText = question.name;
+        optionsElement.innerHTML = '';
+        question.options.forEach((option)=>{
+            optionsElement.innerHTML += `<label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="a">
+                <span class="ml-3">${option.name}</span>
+        </label>`;
+        })
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const timerDisplay = document.getElementById('timer');
         startTimer(1200, timerDisplay); // 20 minutes
 
+
         // Add event listeners for navigation buttons
         document.getElementById('next-btn').addEventListener('click', () => {
             currentQuestionIndex++;
-            let question = takeQuiz(currentQuestionIndex);
+            let question = getQuestion(currentQuestionIndex);
             if (question) {
                 let questionElement = document.getElementById('question');
                 questionElement.textContent = question.question;
@@ -240,7 +206,7 @@
 
         document.getElementById('prev-btn').addEventListener('click', () => {
             currentQuestionIndex--;
-            let question = takeQuiz(currentQuestionIndex);
+            let question = getQuestion(currentQuestionIndex);
             if (question) {
                 let questionElement = document.getElementById('question');
                 questionElement.textContent = question.question;
@@ -285,4 +251,3 @@
     });
 </script>
 </body>
-</html>
