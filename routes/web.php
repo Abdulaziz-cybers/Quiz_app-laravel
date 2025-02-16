@@ -9,17 +9,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
-Route::get('/quizzes', [QuizController::class, 'index'])->name('quizzes');
-Route::get('/quizzes/{quiz}', [QuizController::class, 'edit'])->name('quiz-edit');
-Route::get('/create-quiz', [QuizController::class, 'create'])->name('create-quiz');
-Route::get('/quizzes/{quiz}/delete', [QuizController::class, 'destroy'])->name('delete-quiz');
-Route::get('/take-quiz/{slug}', [QuizController::class, 'startQuiz'])->name('start-quiz');
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware('auth')->name('dashboard');
+Route::get('/statistics', [DashboardController::class, 'statistics'])->middleware('auth')->name('statistics');
+Route::get('/quizzes', [QuizController::class, 'index'])->middleware('auth')->name('quizzes');
+Route::get('/quizzes/{quiz}', [QuizController::class, 'edit'])->middleware('auth')->name('quiz-edit');
+Route::get('/create-quiz', [QuizController::class, 'create'])->middleware('auth')->name('create-quiz');
+Route::get('/quizzes/{quiz}/delete', [QuizController::class, 'destroy'])->middleware('auth')->name('delete-quiz');
+Route::get('/show-quiz/{slug}', [QuizController::class, 'show'])->middleware('auth')->name('show-quiz');
 
-Route::post('/take-quiz/{slug}', [QuizController::class, 'takeQuiz'])->name('take-quiz');
-Route::post('/create-quiz', [QuizController::class, 'store'])->name('store-quiz');
-Route::post('/quizzes/{quiz}/update', [QuizController::class, 'update'])->name('quiz-update');
+Route::post('/start-quiz/{slug}', [QuizController::class, 'startQuiz'])->middleware('auth')->name('start-quiz');
+Route::post('/take-quiz/{slug}', [QuizController::class, 'takeQuiz'])->middleware('auth')->name('take-quiz');
+Route::post('/create-quiz', [QuizController::class, 'store'])->middleware('auth')->name('store-quiz');
+Route::post('/quizzes/{quiz}/update', [QuizController::class, 'update'])->middleware('auth')->name('quiz-update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

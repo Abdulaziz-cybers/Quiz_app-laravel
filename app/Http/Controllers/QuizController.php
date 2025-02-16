@@ -67,9 +67,12 @@ class QuizController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $slug)
     {
-        //
+        $quiz = Quiz::where('slug', $slug)->first();
+        return view('quiz.show-quiz',[
+            'quiz' => $quiz,
+        ]);
     }
 
     /**
@@ -92,25 +95,27 @@ class QuizController extends Controller
             'timeLimit' => 'required|integer',
             'questions' => 'required|array',
         ]);
-        $quiz->title = request('title');
-        $quiz->description = request('description');
-        $quiz->time_limit = request('timeLimit');
+        $quiz->title = $validator['title'];
+        $quiz->description = $validator['description'];
+        $quiz->time_limit = $validator['timeLimit'];
         $quiz->slug = Str::slug(Str::slug(strtotime(now()->format('Y-m-d H:i:s')) .  $validator['title']));
         $quiz->save();
 
         $quiz->questions()->delete();
         foreach ($validator['questions'] as $question) {
             $questionItem = $quiz->questions()->create([
+                'quiz_id' => $quiz->id,
                 'name' => $question['quiz'],
             ]);
             foreach ($question['options'] as $key => $option) {
                 $questionItem->options()->create([
+                    'question_id' => $questionItem->id,
                     'name' => $option,
-                    'option_true' => $question['correct'] = $key ? 1 : 0,
+                    'option_true' => ($question['correct'] == $key) ? 1 : 0,
                 ]);
             }
         }
-        return to_route('quizzes')->with('success', 'Quiz updated successfully');
+        return to_route('quizzes');
     }
     /**
      * Remove the specified resource from storage.
@@ -122,6 +127,12 @@ class QuizController extends Controller
     }
     public function startQuiz(string $slug){
         $quiz = Quiz::query()->where('slug', $slug)->with('questions.options')->first();
+        $result = Result::create([
+            'user_id' => auth()->id(),
+            'quiz_id' => $quiz->id,
+            'started_at' => now(),
+            'finished_at' => date('Y-m-d H:i:s',strtotime('+'.$quiz->time_limit.' minutes'))
+        ]);
         return view('quiz.take-quiz',[
             'quiz' => $quiz,
         ]);
@@ -130,6 +141,7 @@ class QuizController extends Controller
         $validator = $request->validate([
             'answer' => 'required|string',
         ]);
+        dd($validator);
         $user_id = auth()->id();
         $quiz = Quiz::where('slug', $slug)->first();
 
@@ -141,6 +153,7 @@ class QuizController extends Controller
                 'user_id' => $user_id,
                 'quiz_id' => $quiz->id,
                 'started_at' => now(),
+                'finished_at' => date('Y-m-d H:i:s',strtotime('+'.$quiz->time_limit.' minutes'))
             ]);
 
             Answer::create([

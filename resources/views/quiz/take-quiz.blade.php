@@ -21,84 +21,61 @@
 
 <!-- Main Content -->
 <main class="flex-grow container mx-auto px-4 py-8">
-    <div id="start-card" class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <div class="text-center">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4" id="title">Quiz Title</h2>
-            <p class="text-xl text-gray-700 mb-6" id="description">Lorem ipsum dolor sit amet, consectetur
-                adipisicing elit.
-                Accusamus delectus dolorum eligendi esse excepturi in quam qui veritatis voluptatibus?
-                Dolore.</p>
-
-            <div class="flex justify-center space-x-12 mb-8">
-                <div class="text-center">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6" id="questionContainer">
+        <form action="{{route('take-quiz',['slug' => $quiz->slug])}}" method="POST">
+            @csrf
+            <!-- Quiz Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">{{ $quiz->title }}</h1>
+                    <p class="text-gray-600 mt-2">{{ $quiz->description }}</p>
                 </div>
-                <div class="text-center">
-                    <p class="text-3xl font-bold text-blue-600" id="time-taken">5:00</p>
-                    <p class="text-gray-600">Time Limit</p>
+                <div class="text-right">
+                    <div class="text-xl font-bold text-blue-600" id="timer">{{ $quiz->time_limit}}</div>
+                    <div class="text-sm text-gray-500">Time Remaining</div>
                 </div>
             </div>
 
-            <button id="start-btn"
-                    class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Start Quiz
-            </button>
-        </div>
-    </div>
-    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6 hidden" id="questionContainer">
-        <!-- Quiz Header -->
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">{{ $quiz->title }}</h1>
-                <p class="text-gray-600 mt-2">{{ $quiz->description }}</p>
-            </div>
-            <div class="text-right">
-                <div class="text-xl font-bold text-blue-600" id="timer">{{ $quiz->time_limit}}</div>
-                <div class="text-sm text-gray-500">Time Remaining</div>
-            </div>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="mb-6">
-            <div class="flex justify-between mb-2">
-                <span class="text-sm text-gray-600">Question <span id="current-question">1</span> of <span id="total-questions">10</span></span>
-                <span class="text-sm text-gray-600">Progress: <span id="progress">10%</span></span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 10%"></div>
-            </div>
-        </div>
-
-        <!-- Question Container -->
-        <div class="mb-8">
-            <div class="mb-4">
-                <h2 class="text-lg font-semibold text-gray-800" id="question">What is the output of console.log(typeof undefined)?</h2>
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-gray-600">Question <span id="current-question">1</span> of <span id="total-questions">10</span></span>
+                    <span class="text-sm text-gray-600">Progress: <span id="progress">10%</span></span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 10%"></div>
+                </div>
             </div>
 
-            <!-- Options -->
-            <div class="space-y-3" id="options">
+            <!-- Question Container -->
+            <div class="mb-8">
+                <div class="mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800" id="question">What is the output of console.log(typeof undefined)?</h2>
+                </div>
 
-
-
+                <!-- Options -->
+                <div class="space-y-3" id="options">
+                </div>
             </div>
-        </div>
 
 
-        <!-- Navigation Buttons -->
-        <div class="flex justify-between items-center">
-            <button id="prev-btn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50">
-                Previous
-            </button>
-            <button id="next-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Next
-            </button>
-        </div>
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center">
+                <button type="button" id="prev-btn" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50">
+                    Previous
+                </button>
+                <button type="button" id="next-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Next
+                </button>
+            </div>
 
-        <!-- Submit Button -->
-        <div class="mt-8 text-center">
-            <button id="submit-quiz" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                Submit Quiz
-            </button>
-        </div>
+            <!-- Submit Button -->
+            <div class="mt-8 text-center">
+                <button id="submit-quiz" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Submit Quiz
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Results Card -->
@@ -118,13 +95,12 @@
                 </div>
             </div>
 
-            <a href="dashboard.html" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <a href="/dashboard" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Return to Dashboard
             </a>
         </div>
     </div>
 </main>
-
 <!-- Footer -->
 <footer class="bg-white shadow-lg mt-8">
     <div class="max-w-6xl mx-auto px-4 py-4">
@@ -136,118 +112,74 @@
 
 <!-- Quiz JavaScript -->
 <script>
-    let startBtn = document.getElementById('start-btn');
-    startBtn.onclick = () => {
-        document.getElementById('start-card').classList.add('hidden');
-        document.getElementById('questionContainer').classList.remove('hidden');
-        let currentQuestion = getQuestion(currentQuestionIndex)
-        displayQuestion(currentQuestion)
-    }
-    // Timer functionality
-    function startTimer(duration, display) {
-        let timer = duration;
-        setInterval(() => {
-            const minutes = Math.floor(timer / 60);
-            const seconds = timer % 60;
-            display.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            if (--timer < 0) {
-                timer = 0;
-                // Handle timer completion
-            }
-        }, 1000);
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+        const timerDisplay = document.getElementById("timer"),
+            questionElement = document.getElementById("question"),
+            optionsElement = document.getElementById("options"),
+            progressElement = document.querySelector(".bg-blue-600"),
+            currentQuestionSpan = document.getElementById("current-question"),
+            totalQuestionsSpan = document.getElementById("total-questions"),
+            progressText = document.getElementById("progress"),
+            nextBtn = document.getElementById("next-btn"),
+            prevBtn = document.getElementById("prev-btn"),
+            submitBtn = document.getElementById("submit-quiz"),
+            resultsCard = document.getElementById("results-card"),
+            questionContainer = document.getElementById("questionContainer")
 
-    // Initialize quiz
-    let options = document.getElementById('options'),
-        questions = JSON.parse('<?php echo $quiz->toJson() ?>').questions,
-        currentQuestionIndex = 0;
+        let questions = JSON.parse('@json($quiz->questions)');
+        let currentQuestionIndex = 0;
+        totalQuestionsSpan.innerText = questions.length;
 
-    function getQuestion(index=0) {
-        return questions[index];
-    }
+        function startTimer(duration) {
+            let timer = duration;
+            let interval = setInterval(() => {
+                const minutes = Math.floor(timer / 60);
+                const seconds = timer % 60;
+                timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
 
-    function  displayQuestion(question){
-        let questionElement = document.getElementById('question'),
-            optionsElement = document.getElementById('options');
-        questionElement.innerText = question.name;
-        optionsElement.innerHTML = '';
-        question.options.forEach((option)=>{
-            optionsElement.innerHTML += `<label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="a">
-                <span class="ml-3">${option.name}</span>
-        </label>`;
-        })
-    }
+        function displayQuestion(index) {
+            let question = questions[index];
+            if (!question) return;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const timerDisplay = document.getElementById('timer');
-        startTimer(1200, timerDisplay); // 20 minutes
+            questionElement.innerText = question.name;
+            optionsElement.innerHTML = '';
 
-
-        // Add event listeners for navigation buttons
-        document.getElementById('next-btn').addEventListener('click', () => {
-            currentQuestionIndex++;
-            let question = getQuestion(currentQuestionIndex);
-            if (question) {
-                let questionElement = document.getElementById('question');
-                questionElement.textContent = question.question;
-                options.innerHTML = '';
-                question.options.forEach((option) => {
-                    options.innerHTML += `
+            question.options.forEach(option => {
+                optionsElement.innerHTML += `
                 <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="${option.id}">
-                    <span class="ml-3">${option.option_text}</span>
-                </label>`
-                });
-            } else {
-                alert('Quiz completed');
+                    <span class="ml-3">${option.name}</span>
+                </label>`;
+            });
+
+            currentQuestionSpan.innerText = index + 1;
+            let progress = ((index + 1) / questions.length) * 100;
+            progressElement.style.width = `${progress}%`;
+            progressText.innerText = `${Math.round(progress)}%`;
+        }
+
+        nextBtn.addEventListener("click", () => {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
             }
         });
 
-        document.getElementById('prev-btn').addEventListener('click', () => {
-            currentQuestionIndex--;
-            let question = getQuestion(currentQuestionIndex);
-            if (question) {
-                let questionElement = document.getElementById('question');
-                questionElement.textContent = question.question;
-                options.innerHTML = '';
-                question.options.forEach((option) => {
-                    options.innerHTML += `
-                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="${option.id}">
-                    <span class="ml-3">${option.option_text}</span>
-                </label>`
-                });
-            } else {
-                alert('You are at the first question');
-            }
-        });
-
-        document.getElementById('submit-quiz').addEventListener('click', () => {
-            if (currentQuestionIndex >= 2) {
+        prevBtn.addEventListener("click", () => {
+            if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
-            }
-            console.log(currentQuestionIndex);
-            console.log(questions[currentQuestionIndex]);
-            questions.splice(currentQuestionIndex, 1);
-            let question = takeQuiz(currentQuestionIndex),
-                questionElement = document.getElementById('question'),
-                questionContainer = document.getElementById('questionContainer');
-            if (question) {
-                questionElement.textContent = question.question;
-                options.innerHTML = '';
-                question.options.forEach((option) => {
-                    options.innerHTML += `
-                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input type="radio" name="answer" class="h-4 w-4 text-blue-600" value="${option.id}">
-                    <span class="ml-3">${option.option_text}</span>
-                </label>`
-                });
-            } else {
-                questionContainer.innerHTML = '';
-                document.getElementById('results-card').classList.remove('hidden');
+                displayQuestion(currentQuestionIndex);
             }
         });
+
+        startTimer({{ $quiz->time_limit }} * 60);
+        displayQuestion(currentQuestionIndex);
     });
 </script>
 </body>
