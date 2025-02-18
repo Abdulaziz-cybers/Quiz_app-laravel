@@ -107,7 +107,7 @@ class QuizController extends Controller
         $quiz->question_count = $quiz->questions()->count();
         $quiz->correct_answer_count = $correctAnswerCount;
         $quiz->time_taken = $this->getTimeTaken($result);
-        return view('quiz.result',['quiz' =>$quiz]);
+        return to_route('results', ['quiz' => $quiz]);
     }
 
     /**
@@ -222,6 +222,6 @@ class QuizController extends Controller
         $quiz->question_count = $quiz->questions()->count();
         $quiz->correct_answer_count = $correctAnswerCount;
         $quiz->time_taken = $this->getTimeTaken($result);
-        return view('quiz.result',['quiz' => $quiz]);
+        return to_route('results',['quiz' => $quiz]);
     }
 }
