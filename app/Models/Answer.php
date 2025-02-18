@@ -10,4 +10,8 @@ class Answer extends Model
         'option_id',
         'result_id'
     ];
+    public function option(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Option::class, 'option_id');
+    }
 }

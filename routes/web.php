@@ -6,6 +6,8 @@ use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    $quiz = new QuizController();
+    $quiz->resultCard('1739699857new-quiz');
     return view('welcome');
 });
 

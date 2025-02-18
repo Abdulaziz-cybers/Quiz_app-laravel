@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Answer;
+use App\Models\Option;
+use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\Result;
 use Illuminate\Http\Request;
@@ -67,12 +69,45 @@ class QuizController extends Controller
     /**
      * Display the specified resource.
      */
+    public function getTimeTaken(Result $result){
+        $createdAt = strtotime($result->started_at);
+        $finishedAt = strtotime($result->finished_at);
+
+        $diffInSeconds = $finishedAt - $createdAt;
+
+// Format the output dynamically
+        if ($diffInSeconds >= 3600) {
+            $formattedTime = date('H:i:s', $diffInSeconds - strtotime('TODAY')); // Hours, minutes, seconds
+        } elseif ($diffInSeconds >= 60) {
+            $formattedTime = date('i:s', $diffInSeconds - strtotime('TODAY')); // Minutes and seconds
+        } else {
+            $formattedTime = $diffInSeconds . 's'; // Only seconds
+        }
+
+        return $formattedTime;
+    }
     public function show(string $slug)
     {
         $quiz = Quiz::where('slug', $slug)->first();
-        return view('quiz.show-quiz',[
-            'quiz' => $quiz,
-        ]);
+        $result = Result::query()
+            ->where('quiz_id', $quiz->id)
+                ->where('user_id', auth()->id())
+                    ->first();
+        if(!$result){
+            return view('quiz.show-quiz',[
+                'quiz' => $quiz,
+            ]);
+        }
+        $correctAnswerCount = Answer::query()
+            ->where('result_id', $result->id) // Filter by quiz result
+            ->whereHas('option', function ($query) {
+                $query->where('option_true', 1); // Only count correct answers
+            })->count();
+
+        $quiz->question_count = $quiz->questions()->count();
+        $quiz->correct_answer_count = $correctAnswerCount;
+        $quiz->time_taken = $this->getTimeTaken($result);
+        return view('quiz.result',['quiz' =>$quiz]);
     }
 
     /**
@@ -141,27 +176,52 @@ class QuizController extends Controller
         $validator = $request->validate([
             'answer' => 'required|string',
         ]);
-        dd($validator);
         $user_id = auth()->id();
         $quiz = Quiz::where('slug', $slug)->first();
 
         $result = Result::where('quiz_id', $quiz->id)
             ->where('user_id', $user_id)->first();
 
-        if (!$result) {
-            $result = Result::create([
-                'user_id' => $user_id,
-                'quiz_id' => $quiz->id,
-                'started_at' => now(),
-                'finished_at' => date('Y-m-d H:i:s',strtotime('+'.$quiz->time_limit.' minutes'))
-            ]);
-
+        if($result->finished_at <= now()){
+            return 'Seni vaqting tugagan yaramas';
+        }
+        $exists = Answer::where('option_id', $validator['answer'])
+            ->where('result_id', $result->id)
+            ->exists();
+        if (!$exists) {
             Answer::create([
                 'result_id' => $result->id,
                 'option_id' => $validator['answer'],
             ]);
-
-            $answeredOptionIds = Answer::where('result_id', $result->id);
         }
+        $answers = Answer::query()
+            ->where('result_id', $result->id)
+                ->get();
+        $correctAnswerCount = Answer::query()
+            ->where('result_id', $result->id) // Filter by quiz result
+            ->whereHas('option', function ($query) {
+                $query->where('option_true', 1); // Only count correct answers
+            })->count();
+        $options = Option::query()
+            ->select('question_id')
+                ->whereIn('id', $answers->pluck('option_id'))
+                    ->get();
+        $questions = Question::query()
+            ->where('quiz_id', $quiz->id)
+                ->whereNotIn('id', $options->pluck('question_id'))
+                    ->get();
+        if(count($questions)){
+            $questions->load('options');
+            $quiz->questions = $questions;
+            return view('quiz.take-quiz',[
+                'quiz' => $quiz
+            ]);
+        }
+        $result->finished_at = now();
+        $result->save();
+        $quiz->question_count = $quiz->questions()->count();
+        $quiz->correct_answer_count = $correctAnswerCount;
+        $quiz->time_taken = $this->getTimeTaken($result);
+        return view('quiz.result',['quiz' => $quiz]);
     }
 }
