@@ -7,6 +7,7 @@ use App\Models\Answer;
 use App\Models\Option;
 use App\Models\Question;
 use App\Models\Quiz;
+use App\Models\QuizImage;
 use App\Models\Result;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -44,6 +45,7 @@ class QuizController extends Controller
             'description' => 'required|string',
             'timeLimit' => 'required|integer',
             'questions' => 'required|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
         $quiz = Quiz::create([
             'user_id' => auth()->id(),
@@ -52,6 +54,15 @@ class QuizController extends Controller
             'time_limit' => $validator['timeLimit'],
             'slug' => Str::slug(strtotime(now()->format('Y-m-d H:i:s')) .  $validator['title']),
         ]);
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('quiz_images', 'public'); // Save file in storage/app/public/quiz_images
+                QuizImage::create([
+                    'quiz_id' => $quiz->id,
+                    'image_path' => $path
+                ]);
+            }
+        }
         foreach ($validator['questions'] as $question) {
             $questionItem = $quiz->questions()->create([
                 'name' => $question['quiz'],
@@ -107,7 +118,10 @@ class QuizController extends Controller
         $quiz->question_count = $quiz->questions()->count();
         $quiz->correct_answer_count = $correctAnswerCount;
         $quiz->time_taken = $this->getTimeTaken($result);
-        return to_route('results', ['quiz' => $quiz]);
+        return to_route('results', [
+            'quiz' => $quiz,
+            'quizImages' => $quiz->images,
+        ]);
     }
 
     /**
@@ -222,6 +236,9 @@ class QuizController extends Controller
         $quiz->question_count = $quiz->questions()->count();
         $quiz->correct_answer_count = $correctAnswerCount;
         $quiz->time_taken = $this->getTimeTaken($result);
-        return to_route('results',['quiz' => $quiz]);
+        return to_route('results',[
+            'quiz' => $quiz,
+            'quizImages' => $quiz->images
+        ]);
     }
 }

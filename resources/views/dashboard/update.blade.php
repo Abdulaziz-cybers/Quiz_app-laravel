@@ -39,6 +39,9 @@
                                     <label for="timeLimit" class="block text-sm font-medium text-gray-700">Time Limit (minutes)</label>
                                     <input type="number" id="timeLimit" name="timeLimit" value="{{ $quiz->time_limit }}" min="1" required
                                            class="w-48 px-4 py-2 border rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    @foreach($quiz->images as $image)
+                                        <img src="{{ asset('storage/' . $image->image_path) }}" alt="Quiz Image" width="100">
+                                    @endforeach
                                 </div>
                             </div>
                         </div>

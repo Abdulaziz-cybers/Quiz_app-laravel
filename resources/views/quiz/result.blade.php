@@ -35,6 +35,13 @@
                     <p class="text-3xl font-bold text-blue-600" id="time-taken">{{$quiz->time_taken}}</p>
                     <p class="text-gray-600">Time Taken</p>
                 </div>
+                <div class="text-center">
+                    @if($quizImages->count())
+                        @foreach($quizImages as $image)
+                            <img src="{{ asset('storage/' . $image->path) }}" alt="Quiz Image" class="quiz-image">
+                        @endforeach
+                    @endif
+                </div>
             </div>
 
             <a href="/dashboard" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
